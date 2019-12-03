@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+var validator = require('validator');
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 (async () => {
@@ -36,6 +37,35 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   app.get( "/", async ( req, res ) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
+  
+  app.get('/filteredimage', async(req, res) => {
+
+    const imageUrl = req.query.image_url;
+
+    if (imageUrl) {
+      if (validator.isURL(imageUrl)) {
+        try {
+          console.log('Found image URL: ', imageUrl);
+          const outputFilePath = await filterImageFromURL(imageUrl);
+          res.status(200).sendFile(outputFilePath, (err) => {
+            if (!err) {
+              console.log('Delete file: ', outputFilePath);
+              deleteLocalFiles([outputFilePath]);
+            }
+          });
+        }
+        catch(error) {
+          res.status(500).send('Failed to apply filters on this image.');
+        }
+      }
+      else {
+        res.status(401).send('Invalid URL.');
+      }
+    }
+    else {
+      res.status(401).send('No image URL found.');
+    }
+  });
   
 
   // Start the Server
