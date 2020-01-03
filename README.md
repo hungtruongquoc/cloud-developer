@@ -1,2 +1,8 @@
-# cloud-developer
-content for Udacity's cloud developer nanodegree
+## Name: Hung Truong
+## Project: Refactor Udagram app into Microservices and Deploy
+
+### Links
+**Docker Hub**: https://hub.docker.com/u/hungtruongquoc
+
+GitHub: https://github.com/hungtruongquoc/cloud-developer
+
