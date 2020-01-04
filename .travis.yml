@@ -19,3 +19,4 @@ before_install:
 
 install:
   - docker-compose -f course-03/deployment/docker-compose-build.yaml build --parallel
+  - docker-compose -f course-03/deployment/docker-compose-build.yaml push
