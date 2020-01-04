@@ -17,8 +17,8 @@ before_install:
 - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 - chmod +x ./kubectl
 - sudo mv ./kubectl /usr/local/bin/kubectl
+- docker login -u $DOCKER_USER -p $DOCKER_PASS docker.io
 install:
 - docker-compose -f course-03/deployment/docker-compose-build.yaml build --parallel
 after_success:
-- docker login -u $DOCKER_USER -p $DOCKER_PASS docker.io
 - docker-compose -f course-03/deployment/docker-compose-build.yaml push
