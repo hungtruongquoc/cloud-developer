@@ -6,7 +6,7 @@ env:
 before_install:
 - docker -v && docker-compose -v
 - printenv
-- docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+- docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
   -s`-`uname -m` > docker-compose
