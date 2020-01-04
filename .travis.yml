@@ -20,5 +20,5 @@ before_install:
 install:
 - docker-compose -f course-03/deployment/docker-compose-build.yaml build --parallel
 after_success:
-- docker login -u $DOCKER_USER -p $DOCKER_PASS -e $DOCKER_EMAIL docker.io
+- docker login -u $DOCKER_USER -p $DOCKER_PASS docker.io
 - docker-compose -f course-03/deployment/docker-compose-build.yaml push
