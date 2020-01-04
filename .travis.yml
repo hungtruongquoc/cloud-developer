@@ -9,6 +9,7 @@ env:
   - secure: gkmXwUPNwNztqK02EFwnxXD1OL8cAQG7DCVQI8ontsmO7f7zVlMxX5HhFAoBVgzPpuGvebFJO5DzufVhwoB95rp8FLsIhC1rO0/Y4+zVOYFV5IHUmj4FqjlnpxBL7W/n50VSQqO8v2g3Yqa2Iuv0ICj6jLAzWZS90IlK3vGXX8OTmLYRRnL6Z/rxt37QpalVQkRiSg/JD7Sxw/ri3agBd356A8x4AWFX3kfh7IFzJbYgWrjQWaUiFOIRoMtvM34pLmBIpzCSsDwO0T2lcs4f5diKG6839jLUDNnuZ5wMoeY+aIFyTpNj+U63veT40ocdY0oBWuYWhuO6ehXoMppBQS6zD1a+bFgKvzqy9Fy8pvqr334WsGiEynUWNOg++mWipqEtyqxusJa3kBnmH0V4YK0ssbYxvh4pQe8BxiuUwTX7FT/NyYpwo55IIQ/dAV8qSrlmLx/YgE8zZnFYcORIYo3CRjCNGmQSbGOfJEvRyxFa2ts6CuF29Z7RCLJn/4cyVgzOmZM6rekxOER/CB39hu/plWw4gUKc7XIbQx0e6zfEAebSXFh96BA26wSDa+ZXGx5FICYyWCyL8MHq6nIRN9trPycbWZLaOyskIZdG9B7L25ryRlUi6G0Jsrkp4xhLEJMz6qRFffKnjCn8yXrRbC6S2p2RaNF5ciMbUWTKMH0=
 before_install:
 - docker -v && docker-compose -v
+- printenv
 - docker login -u $DOCKER_USER -p $DOCKER_PASS
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
