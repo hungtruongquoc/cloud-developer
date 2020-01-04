@@ -24,4 +24,6 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+        - name: registry-secret
       restartPolicy: Always
