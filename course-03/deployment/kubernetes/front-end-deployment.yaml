@@ -25,4 +25,6 @@ spec:
             limits:
               memory: "1024Mi"
               cpu: "500m"
+      imagePullSecrets:
+        - name: registry-secret
       restartPolicy: Always

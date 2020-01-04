@@ -1,7 +1,7 @@
 import {Router, Request, Response} from 'express';
 import {FeedItem} from '../models/FeedItem';
 import * as AWS from '../../../../aws';
-import * as c from "../../../../../../udacity-c3-user/src/config/config";
+import * as c from "../../../../config/config";
 import { NextFunction } from 'connect';
 import * as jwt from 'jsonwebtoken';
 

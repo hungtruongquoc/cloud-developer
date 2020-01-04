@@ -5,9 +5,12 @@ metadata:
     service: backend-feed
   name: backend-feed
 spec:
+  # This defines which pods are going to be represented by this service
   ports:
     - name: "8080"
+      # On the service
       port: 8080
+      # On the container
       targetPort: 8080
   selector:
     service: backend-feed

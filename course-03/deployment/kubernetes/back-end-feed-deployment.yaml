@@ -72,6 +72,8 @@ spec:
             - name: aws-secret
               mountPath: "/root/.aws/"
               readOnly: true
+      imagePullSecrets:
+        - name: registry-secret
       restartPolicy: Always
       volumes:
         - name: aws-secret
