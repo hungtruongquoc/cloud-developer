@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package.json ./
 RUN npm i
-RUN npm run build
 # Bundle app source
 COPY . .
 EXPOSE 8080
