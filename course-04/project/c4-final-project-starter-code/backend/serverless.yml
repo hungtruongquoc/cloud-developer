@@ -7,7 +7,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
@@ -25,6 +25,7 @@ functions:
           method: get
           path: todos
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   CreateTodo:
@@ -34,6 +35,7 @@ functions:
           method: post
           path: todos
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   UpdateTodo:
@@ -43,6 +45,7 @@ functions:
           method: patch
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   DeleteTodo:
@@ -52,6 +55,7 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -61,7 +65,18 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
+          authorizer: Auth
 
 resources:
   Resources:
   # TODO: Add any necessary AWS resources
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type, X-Amz-Date, Authorization'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET, OPTIONS, POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
