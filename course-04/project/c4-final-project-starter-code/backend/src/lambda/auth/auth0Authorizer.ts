@@ -53,7 +53,7 @@ export const handler = async (
 	try {
 		const currentAudience = await getAudience();
 		logger.info('Audience: ', [currentAudience])
-		const jwtToken = await verifyToken(event.authorizationToken, verifyJwt, issuer, currentAudience)
+		const jwtToken = await verifyToken(event.authorizationToken, verifyJwt, issuer, currentAudience.Audience)
 		logger.info('User was authorized', jwtToken)
 
 		return {
