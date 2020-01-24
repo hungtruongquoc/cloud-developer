@@ -44,3 +44,7 @@ export async function createToDo(
 	item.done = false;
 	return await dbTodo.createToDo(item);
 }
+
+export async function deleteToDo(todoId: string): Promise<string> {
+	return await dbTodo.deleteToDo(todoId);
+}

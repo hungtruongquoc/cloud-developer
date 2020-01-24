@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import {DocumentClient} from 'aws-sdk/clients/dynamodb'
 import {createLogger} from "../utils/logger";
+import {TodoItem} from "../models/TodoItem";
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('todo-get')
@@ -37,11 +38,16 @@ export class Todo {
 			ExclusiveStartKey: nextKey
 		}
 
-		 return await this.docClient.scan(scanParams).promise()
+		return await this.docClient.scan(scanParams).promise()
 	}
 
-	async createToDo(item) {
+	async createToDo(item): Promise<TodoItem> {
 		await this.docClient.put({TableName: this.todoTable, Item: item}).promise()
 		return item
+	}
+
+	async deleteToDo(todoId: string): Promise<string> {
+		await this.docClient.delete({TableName: this.todoTable, Key: {todoId}}).promise()
+		return todoId;
 	}
 }
