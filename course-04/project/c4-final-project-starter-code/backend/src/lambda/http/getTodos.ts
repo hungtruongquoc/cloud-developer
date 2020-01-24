@@ -1,19 +1,19 @@
 import 'source-map-support/register'
 
-import { APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import {APIGatewayProxyResult, APIGatewayProxyHandler} from 'aws-lambda'
 
 import {createLogger} from '../../utils/logger'
 
-import * as AWS from 'aws-sdk'
+import {Todo} from "../../dataLayer/todo";
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+import * as middy from 'middy'
 
-const todostable = process.env.TODOS_TABLE
+import {cors} from 'middy/middlewares'
 
 const logger = createLogger('todo-get')
 
-export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-  // TODO: Get all TODO items for a current user
+export const handler: APIGatewayProxyHandler = middy(async (event): Promise<APIGatewayProxyResult> => {
+	// TODO: Get all TODO items for a current user
 	logger.info('In get API: ')
 
 	let nextKey // Next key to continue scan operation if necessary
@@ -33,29 +33,24 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
 		}
 	}
 
-	// Scan operation parameters
-	const scanParams = {
-		TableName: todostable,
-		Limit: limit,
-		ExclusiveStartKey: nextKey
-	}
-	console.log('Scan params: ', scanParams)
+	const todoDb = new Todo();
 
-	const result = await docClient.scan(scanParams).promise()
-
-	const items = result.Items
+	const result = await todoDb.getAllToDos(nextKey, limit);
 
 	console.log('Result: ', result)
 
 	return {
 		statusCode: 200,
 		body: JSON.stringify({
-			items,
+			items: result.Items,
 			// Encode the JSON object so a client can return it in a URL as is
 			nextKey: encodeNextKey(result.LastEvaluatedKey)
 		})
 	}
-}
+})
+
+// @ts-ignore
+handler.use(cors({credentials: true}));
 
 /**
  * Get value of the limit parameter.

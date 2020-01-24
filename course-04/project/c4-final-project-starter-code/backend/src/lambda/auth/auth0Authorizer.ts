@@ -52,8 +52,8 @@ export const handler = async (
 	logger.info('Authorizing a user', event.authorizationToken)
 	try {
 		const currentAudience = await getAudience();
-		logger.info('Audience: ', currentAudience)
-		const jwtToken = await verifyToken(event.authorizationToken, verifyJwt, issuer, currentAudience)
+		logger.info('Audience: ', [currentAudience])
+		const jwtToken = await verifyToken(event.authorizationToken, verifyJwt, issuer, currentAudience.Audience)
 		logger.info('User was authorized', jwtToken)
 
 		return {
@@ -132,6 +132,7 @@ async  function getAudience() {
 			{SecretId: process.env.AUDIENCE_SECRET_ID}
 	).promise()
 
-	audience = data.SecretString
-	return JSON.parse(audience)[process.env.AUDIENCE_FIELD]
+	audience = JSON.parse(data.SecretString)
+
+	return audience[process.env.AUDIENCE_FIELD]
 }
