@@ -40,4 +40,8 @@ export class Todo {
 		 return await this.docClient.scan(scanParams).promise()
 	}
 
+	async createToDo(item) {
+		await this.docClient.put({TableName: this.todoTable, Item: item}).promise()
+		return item
+	}
 }

@@ -27,6 +27,8 @@ export async function createTodo(
       'Authorization': `Bearer ${idToken}`
     }
   })
+  console.log(response);
+  debugger;
   return response.data.item
 }
 

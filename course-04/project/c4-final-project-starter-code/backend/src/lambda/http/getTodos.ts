@@ -4,11 +4,10 @@ import {APIGatewayProxyResult, APIGatewayProxyHandler} from 'aws-lambda'
 
 import {createLogger} from '../../utils/logger'
 
-import {Todo} from "../../dataLayer/todo";
-
 import * as middy from 'middy'
 
 import {cors} from 'middy/middlewares'
+import {getAllTodoItems} from "../../businessLogic/todo";
 
 const logger = createLogger('todo-get')
 
@@ -33,19 +32,11 @@ export const handler: APIGatewayProxyHandler = middy(async (event): Promise<APIG
 		}
 	}
 
-	const todoDb = new Todo();
-
-	const result = await todoDb.getAllToDos(nextKey, limit);
-
-	console.log('Result: ', result)
+	const result = await getAllTodoItems(nextKey, limit);
 
 	return {
 		statusCode: 200,
-		body: JSON.stringify({
-			items: result.Items,
-			// Encode the JSON object so a client can return it in a URL as is
-			nextKey: encodeNextKey(result.LastEvaluatedKey)
-		})
+		body: JSON.stringify({...result})
 	}
 })
 
@@ -105,19 +96,4 @@ function getQueryParameter(event, name) {
 	}
 
 	return queryParams[name]
-}
-
-/**
- * Encode last evaluated key using
- *
- * @param {Object} lastEvaluatedKey a JS object that represents last evaluated key
- *
- * @return {string} URI encoded last evaluated key
- */
-function encodeNextKey(lastEvaluatedKey) {
-	if (!lastEvaluatedKey) {
-		return null
-	}
-
-	return encodeURIComponent(JSON.stringify(lastEvaluatedKey))
 }
