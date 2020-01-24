@@ -3,6 +3,7 @@ import {createLogger} from "../utils/logger";
 import {CreateTodoRequest} from '../requests/CreateTodoRequest'
 import * as uuid from 'uuid'
 import {TodoItem} from "../models/TodoItem";
+import {UpdateTodoRequest} from "../requests/UpdateTodoRequest";
 
 const logger = createLogger('todo-get')
 const dbTodo = new Todo()
@@ -47,4 +48,8 @@ export async function createToDo(
 
 export async function deleteToDo(todoId: string): Promise<string> {
 	return await dbTodo.deleteToDo(todoId);
+}
+
+export async function updateToDo(todoId: string, newData: UpdateTodoRequest): Promise<Object> {
+	return await dbTodo.updateToDo(todoId, newData);
 }
