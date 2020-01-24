@@ -3,9 +3,10 @@ import * as AWSXRay from 'aws-xray-sdk'
 import {DocumentClient} from 'aws-sdk/clients/dynamodb'
 import {createLogger} from "../utils/logger";
 import {TodoItem} from "../models/TodoItem";
+import {UpdateTodoRequest} from "../requests/UpdateTodoRequest";
 
 const XAWS = AWSXRay.captureAWS(AWS)
-const logger = createLogger('todo-get')
+const logger = createLogger('todo-data-layer')
 
 function createDynamoDBClient() {
 	if (process.env.IS_OFFLINE) {
@@ -49,5 +50,23 @@ export class Todo {
 	async deleteToDo(todoId: string): Promise<string> {
 		await this.docClient.delete({TableName: this.todoTable, Key: {todoId}}).promise()
 		return todoId;
+	}
+
+	async updateToDo(todoId: string, newData: UpdateTodoRequest): Promise<Object> {
+		const updatedItem = await this.docClient.update({
+			TableName: this.todoTable,
+			Key: {todoId},
+			UpdateExpression: 'set #name = :n, dueDate = :d, done = :c',
+			ExpressionAttributeValues: {
+				':n': newData.name,
+				':d': newData.dueDate,
+				':c': newData.done
+			},
+			ExpressionAttributeNames: {
+				'#name': 'name'
+			}
+		}).promise()
+		logger.info('update result: ', {...updatedItem})
+		return {todoId, ...newData}
 	}
 }
