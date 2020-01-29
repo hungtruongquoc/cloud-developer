@@ -26,11 +26,23 @@ export class Todo {
 			private readonly todoTable = process.env.TODOS_TABLE) {
 	}
 
-	async getAllToDos(user: string, nextKey, limit): Promise<AWS.DynamoDB.ScanOutput> {
+	async getToDo(user: string, todoId: string): Promise<AWS.DynamoDB.QueryOutput> {
+		logger.info('Get one todo: ', {user, todoId});
+
+		const scanParams = {
+			TableName: this.todoTable,
+			KeyConditionExpression: "userId = :id And todoId = :todo",
+			ExpressionAttributeValues: {
+				":id": user,
+				":todo": todoId
+			}
+		}
+		return await this.docClient.query(scanParams).promise()
+	}
+
+	async getAllToDos(user: string, nextKey, limit): Promise<AWS.DynamoDB.QueryOutput> {
 
 		logger.info('In get Database Layer: ')
-
-		console.log('Getting all groups')
 
 		// Scan operation parameters
 		const scanParams = {
@@ -57,15 +69,23 @@ export class Todo {
 	}
 
 	async updateToDo(user: string, todoId: string, newData: UpdateTodoRequest): Promise<Object> {
+		// Builds the expressions for update
+		let updateExpression = 'set #name = :n, dueDate = :d, done = :c';
+		let attributeValues = {
+			':n': newData.name,
+			':d': newData.dueDate,
+			':c': newData.done
+		}
+
+		if (newData.attachmentUrl) {
+			updateExpression += ', attachmentUrl = :url'
+			attributeValues[':url'] = newData.attachmentUrl
+		}
 		const updatedItem = await this.docClient.update({
 			TableName: this.todoTable,
 			Key: {userId: user, todoId},
-			UpdateExpression: 'set #name = :n, dueDate = :d, done = :c',
-			ExpressionAttributeValues: {
-				':n': newData.name,
-				':d': newData.dueDate,
-				':c': newData.done
-			},
+			UpdateExpression: updateExpression,
+			ExpressionAttributeValues: attributeValues,
 			ExpressionAttributeNames: {
 				'#name': 'name'
 			}
