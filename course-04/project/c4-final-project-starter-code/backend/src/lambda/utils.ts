@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { parseUserId } from "../auth/utils";
+import * as AWS from "aws-sdk";
+
+const secretClient = new AWS.SecretsManager()
 
 /**
  * Get a user id from an API Gateway event
@@ -13,4 +16,9 @@ export function getUserId(event: APIGatewayProxyEvent): string {
   const jwtToken = split[1]
 
   return parseUserId(jwtToken)
+}
+
+export async function getSecretValue(id, field): Promise<string> {
+  const data = await secretClient.getSecretValue({SecretId: id}).promise();
+  return  JSON.parse(data.SecretString)[field];
 }

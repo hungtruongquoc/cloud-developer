@@ -51,7 +51,7 @@ export const handler = async (
 ): Promise<CustomAuthorizerResult> => {
 	logger.info('Authorizing a user', event.authorizationToken)
 	try {
-		const currentAudience = await getAudience();
+		const currentAudience = await getAudience()
 		logger.info('Audience: ', [currentAudience])
 		const jwtToken = await verifyToken(event.authorizationToken, verifyJwt, issuer, currentAudience.Audience)
 		logger.info('User was authorized', jwtToken)
