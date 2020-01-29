@@ -21,7 +21,7 @@ provider:
   environment:
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
     AUTH_0_SECRET_FIELD: auth0Secret
-    TODOS_TABLE: ToDos-${self:provider.stage}
+    TODOS_TABLE: ToDoList-${self:provider.stage}
     AUDIENCE_SECRET_ID: Audience-${self:provider.stage}
     AUDIENCE_FIELD: Audience
     UPLOAD_SECRET_ID: UploadSecret-${self:provider.stage}
@@ -59,6 +59,7 @@ functions:
 
   GetTodos:
     handler: src/lambda/http/getTodos.handler
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -75,6 +76,7 @@ functions:
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -89,6 +91,7 @@ functions:
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -103,6 +106,7 @@ functions:
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -118,10 +122,13 @@ functions:
   # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
+    iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
           - dynamodb:UpdateItem
+          - dynamodb:Query
+          - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
@@ -132,7 +139,7 @@ functions:
 
 resources:
   Resources:
-    GroupsDynamoDBTable:
+    ToDoDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:

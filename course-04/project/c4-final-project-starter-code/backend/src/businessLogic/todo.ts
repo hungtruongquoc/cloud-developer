@@ -32,13 +32,21 @@ export async function getAllTodoItems(user: string, next, limit): Promise<Object
 	}
 }
 
+export async function getOneToDoItem(user: string, todoId: string): Promise<Object> {
+	const result = await dbTodo.getToDo(user, todoId);
+	if (result.Items && result.Items.length > 0) {
+		return result.Items[0];
+	}
+	return null;
+}
+
 export async function createToDo(
 		createToDoRequest: CreateTodoRequest,
 		user: string
 ): Promise<TodoItem> {
 	logger.info('In business logic of create: ', {createToDoRequest, user})
 	//@ts-ignore
-	const item: TodoItem = {...createToDoRequest};
+	const item: TodoItem = {...createToDoRequest, attachmentUrl: ' '};
 	item.todoId = uuid.v4();
 	item.userId = user;
 	item.createdAt = (new Date()).toUTCString();
