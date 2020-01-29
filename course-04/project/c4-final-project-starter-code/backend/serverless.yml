@@ -18,10 +18,14 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
+  tracing:
+    lambda: true
+    apiGateway: true
+
   environment:
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
     AUTH_0_SECRET_FIELD: auth0Secret
-    TODOS_TABLE: ToDoList-${self:provider.stage}
+    TODOS_TABLE: ToDos-${self:provider.stage}
     AUDIENCE_SECRET_ID: Audience-${self:provider.stage}
     AUDIENCE_FIELD: Audience
     UPLOAD_SECRET_ID: UploadSecret-${self:provider.stage}
@@ -51,6 +55,12 @@ provider:
       Action:
         - kms:Decrypt
       Resource: !GetAtt KMSKey.Arn
+    - Effect: Allow # xray permissions (required)
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource:
+        - "*"
 
 functions:
 
@@ -154,7 +164,7 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-  # TODO: Add any necessary AWS resources
+
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:

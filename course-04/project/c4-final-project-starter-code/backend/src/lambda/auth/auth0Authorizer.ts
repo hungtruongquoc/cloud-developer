@@ -1,7 +1,7 @@
 import {CustomAuthorizerEvent, CustomAuthorizerResult} from 'aws-lambda'
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
-
+import * as AWSXRay from 'aws-xray-sdk'
 import {verify, decode} from 'jsonwebtoken'
 import {createLogger} from '../../utils/logger'
 import * as jwksRSA from 'jwks-rsa';
@@ -11,7 +11,8 @@ import {Jwt} from '../../auth/Jwt'
 import {JwtPayload} from '../../auth/JwtPayload'
 
 const logger = createLogger('auth')
-const secretClient = new AWS.SecretsManager()
+const XAWS = AWSXRay.captureAWS(AWS)
+const secretClient = new XAWS.SecretsManager()
 let audience: string = null
 
 // const secretId = process.env.AUTH_0_SECRET_ID
