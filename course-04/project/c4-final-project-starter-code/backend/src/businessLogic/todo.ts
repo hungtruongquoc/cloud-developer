@@ -23,9 +23,9 @@ function encodeNextKey(lastEvaluatedKey) {
 	return encodeURIComponent(JSON.stringify(lastEvaluatedKey))
 }
 
-export async function getAllTodoItems(next, limit): Promise<Object> {
+export async function getAllTodoItems(user: string, next, limit): Promise<Object> {
 	logger.info('In business logic: ')
-	const result = await dbTodo.getAllToDos(next, limit)
+	const result = await dbTodo.getAllToDos(user, next, limit)
 	return {
 		items: result.Items,
 		nextKey: encodeNextKey(result.LastEvaluatedKey)
@@ -46,10 +46,10 @@ export async function createToDo(
 	return await dbTodo.createToDo(item);
 }
 
-export async function deleteToDo(todoId: string): Promise<string> {
-	return await dbTodo.deleteToDo(todoId);
+export async function deleteToDo(user, todoId: string): Promise<string> {
+	return await dbTodo.deleteToDo(user, todoId);
 }
 
-export async function updateToDo(todoId: string, newData: UpdateTodoRequest): Promise<Object> {
-	return await dbTodo.updateToDo(todoId, newData);
+export async function updateToDo(user: string, todoId: string, newData: UpdateTodoRequest): Promise<Object> {
+	return await dbTodo.updateToDo(user, todoId, newData);
 }

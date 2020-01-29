@@ -8,12 +8,17 @@ import * as middy from 'middy'
 
 import {cors} from 'middy/middlewares'
 import {getAllTodoItems} from "../../businessLogic/todo";
+import {getUserId} from "../../utils/jwtToken";
 
 const logger = createLogger('todo-get')
 
 export const handler: APIGatewayProxyHandler = middy(async (event): Promise<APIGatewayProxyResult> => {
 	// TODO: Get all TODO items for a current user
 	logger.info('In get API: ')
+	const authorization = event.headers.Authorization
+	const split = authorization.split(' ')
+	const jwtToken = split[1]
+	const user = getUserId(jwtToken)
 
 	let nextKey // Next key to continue scan operation if necessary
 	let limit // Maximum number of elements to return
@@ -32,7 +37,7 @@ export const handler: APIGatewayProxyHandler = middy(async (event): Promise<APIG
 		}
 	}
 
-	const result = await getAllTodoItems(nextKey, limit);
+	const result = await getAllTodoItems(user, nextKey, limit);
 
 	return {
 		statusCode: 200,

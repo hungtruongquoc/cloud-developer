@@ -26,7 +26,7 @@ export class Todo {
 			private readonly todoTable = process.env.TODOS_TABLE) {
 	}
 
-	async getAllToDos(nextKey, limit): Promise<AWS.DynamoDB.ScanOutput> {
+	async getAllToDos(user: string, nextKey, limit): Promise<AWS.DynamoDB.ScanOutput> {
 
 		logger.info('In get Database Layer: ')
 
@@ -36,10 +36,14 @@ export class Todo {
 		const scanParams = {
 			TableName: this.todoTable,
 			Limit: limit,
-			ExclusiveStartKey: nextKey
+			ExclusiveStartKey: nextKey,
+			KeyConditionExpression: "userId = :id",
+			ExpressionAttributeValues: {
+				":id": user
+			}
 		}
 
-		return await this.docClient.scan(scanParams).promise()
+		return await this.docClient.query(scanParams).promise()
 	}
 
 	async createToDo(item): Promise<TodoItem> {
@@ -47,15 +51,15 @@ export class Todo {
 		return item
 	}
 
-	async deleteToDo(todoId: string): Promise<string> {
-		await this.docClient.delete({TableName: this.todoTable, Key: {todoId}}).promise()
+	async  deleteToDo(user, todoId: string): Promise<string> {
+		await this.docClient.delete({TableName: this.todoTable, Key: {userId: user, todoId}}).promise()
 		return todoId;
 	}
 
-	async updateToDo(todoId: string, newData: UpdateTodoRequest): Promise<Object> {
+	async updateToDo(user: string, todoId: string, newData: UpdateTodoRequest): Promise<Object> {
 		const updatedItem = await this.docClient.update({
 			TableName: this.todoTable,
-			Key: {todoId},
+			Key: {userId: user, todoId},
 			UpdateExpression: 'set #name = :n, dueDate = :d, done = :c',
 			ExpressionAttributeValues: {
 				':n': newData.name,
