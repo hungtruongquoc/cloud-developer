@@ -21,7 +21,7 @@ provider:
   environment:
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
     AUTH_0_SECRET_FIELD: auth0Secret
-    TODOS_TABLE: ToDoLists-${self:provider.stage}
+    TODOS_TABLE: ToDos-${self:provider.stage}
     AUDIENCE_SECRET_ID: Audience-${self:provider.stage}
     AUDIENCE_FIELD: Audience
     UPLOAD_SECRET_ID: UploadSecret-${self:provider.stage}
@@ -51,15 +51,6 @@ provider:
       Action:
         - kms:Decrypt
       Resource: !GetAtt KMSKey.Arn
-    - Effect: Allow
-      Action:
-        - dynamodb:Scan
-        - dynamodb:PutItem
-        - dynamodb:GetItem
-        - dynamodb:DeleteItem
-        - dynamodb:Query
-        - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 functions:
 
@@ -68,6 +59,13 @@ functions:
 
   GetTodos:
     handler: src/lambda/http/getTodos.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: get
@@ -77,6 +75,11 @@ functions:
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: post
@@ -86,6 +89,11 @@ functions:
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: patch
@@ -95,6 +103,11 @@ functions:
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: delete
@@ -105,6 +118,11 @@ functions:
   # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: post
@@ -120,9 +138,13 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId
             AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
-          - AttributeName: todoId
+          - AttributeName: userId
             KeyType: HASH
+          - AttributeName: todoId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
   # TODO: Add any necessary AWS resources

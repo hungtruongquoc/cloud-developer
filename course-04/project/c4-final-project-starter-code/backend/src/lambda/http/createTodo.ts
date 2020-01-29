@@ -6,8 +6,6 @@ import {createLogger} from '../../utils/logger'
 import {CreateTodoRequest} from "../../requests/CreateTodoRequest";
 import {getUserId} from "../../utils/jwtToken";
 import {createToDo} from "../../businessLogic/todo";
-// import {Todo} from "../../dataLayer/todo";
-// import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 const logger = createLogger('todo-create')
 
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
