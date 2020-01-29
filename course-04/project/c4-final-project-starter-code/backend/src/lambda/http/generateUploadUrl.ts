@@ -1,5 +1,6 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import {APIGatewayProxyResult, APIGatewayProxyHandler, APIGatewayProxyEvent} from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
 import {getSecretValue} from "../utils";
@@ -11,7 +12,7 @@ import {getOneToDoItem, updateToDo} from "../../businessLogic/todo";
 import {UpdateTodoRequest} from "../../requests/UpdateTodoRequest";
 
 const logger = createLogger('get_upload_url')
-
+const XAWS = AWSXRay.captureAWS(AWS)
 let uploadSecret: string = null
 let uploadAccess: string = null
 
@@ -23,7 +24,7 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 	const split = authorization.split(' ')
 	const jwtToken = split[1]
 	const user = getUserId(jwtToken)
-	const s3 = new AWS.S3({
+	const s3 = new XAWS.S3({
 		credentials: new Credentials(currentUploadAccess, currentUploadSecret),
 		signatureVersion: 'v4'
 	})
