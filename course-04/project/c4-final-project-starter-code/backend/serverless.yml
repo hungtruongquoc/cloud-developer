@@ -24,6 +24,10 @@ provider:
     TODOS_TABLE: ToDoLists-${self:provider.stage}
     AUDIENCE_SECRET_ID: Audience-${self:provider.stage}
     AUDIENCE_FIELD: Audience
+    UPLOAD_SECRET_ID: UploadSecret-${self:provider.stage}
+    UPLOAD_SECRET_FIELD: UploadSecret
+    UPLOAD_ACCESS_ID: UploadAccess-${self:provider.stage}
+    UPLOAD_ACCESS_FIELD: UploadAccess
     AUTH_URL: https://dev-gfdym553.auth0.com/
 
   iamRoleStatements:
@@ -35,6 +39,14 @@ provider:
       Action:
         - secretsmanager:GetSecretValue
       Resource: !Ref Audience
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource: !Ref UploadSecret
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource: !Ref UploadAccess
     - Effect: Allow
       Action:
         - kms:Decrypt
@@ -72,7 +84,6 @@ functions:
           cors: true
           authorizer: Auth
 
-  # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
@@ -165,4 +176,18 @@ resources:
       Properties:
         Name: ${self:provider.environment.AUDIENCE_SECRET_ID}
         Description: Audience (Auth0 Client ID)
+        KmsKeyId: !Ref KMSKey
+
+    UploadSecret:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: ${self:provider.environment.UPLOAD_SECRET_ID}
+        Description: Secret and key for upload images
+        KmsKeyId: !Ref KMSKey
+
+    UploadAccess:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: ${self:provider.environment.UPLOAD_ACCESS_ID}
+        Description: Secret and key for upload images
         KmsKeyId: !Ref KMSKey
