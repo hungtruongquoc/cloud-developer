@@ -1,8 +1,10 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { parseUserId } from "../auth/utils";
 import * as AWS from "aws-sdk";
+import * as AWSXRay from 'aws-xray-sdk'
 
-const secretClient = new AWS.SecretsManager()
+const XAWS = AWSXRay.captureAWS(AWS)
+const secretClient = new XAWS.SecretsManager()
 
 /**
  * Get a user id from an API Gateway event
