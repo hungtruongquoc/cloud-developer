@@ -5,6 +5,7 @@ import {createLogger} from "../../utils/logger";
 import {getSecretValue} from "../utils";
 import * as middy from 'middy'
 import {cors} from "middy/middlewares";
+import {Credentials} from "aws-sdk";
 
 const logger = createLogger('get_upload_url')
 
@@ -16,10 +17,10 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 	const currentUploadSecret = await getUploadSecret()
 	const currentUploadAccess = await getUploadAccess()
 	const s3 = new AWS.S3({
-		secretAccessKey: currentUploadSecret,
-		accessKeyId: currentUploadAccess
+		credentials: new Credentials(currentUploadAccess, currentUploadSecret),
+		signatureVersion: 'v4'
 	})
-  const params = {Bucket: 'serverless-todo-app-asset', ContentType: 'image/jpeg', Key: `${todoId}.jpeg`};
+  const params = {Bucket: 'serverless-todo-app-asset', Key: `assets/${todoId}.jpeg`};
 	const uploadUrl = s3.getSignedUrl('putObject', params)
 	// TODO: Return a presigned URL to upload a file for a TODO item with the provided id
 	logger.info('Result: ', {todoId, uploadUrl})
