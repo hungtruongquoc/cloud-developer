@@ -4,6 +4,11 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
+
+# Request schema
+# https://itnext.io/how-to-validate-http-requests-before-they-reach-lambda-2fff68bfe93b
 
 # This does not work on my local machine
 # Whenever I try to turn this on, I have the following error:
@@ -62,6 +67,21 @@ provider:
       Resource:
         - "*"
 
+custom:
+  documentation:
+    api:
+      info:
+        version: '1.0.0'
+        title: ToDo App API
+        description: APIs for serverless ToDo App
+    models:
+      - name: CreateToDoRequest
+        contentType: application/json
+        schema: ${file(models/create-to-do-request.json)}
+      - name: UpdateToDoRequest
+        contentType: application/json
+        schema: ${file(models/update-to-do-request.json)}
+
 functions:
 
   Auth:
@@ -88,7 +108,7 @@ functions:
     handler: src/lambda/http/createTodo.handler
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      - Effect: "Allow"
+      - Effect: "Allow"ß
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
@@ -98,6 +118,12 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          request:
+            summary: Create a new to do item
+            description: Create a new todo item
+            requestModels:
+              'application/json': CreateToDoRequest
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -113,6 +139,9 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(models/update-to-do-request.json)}
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
@@ -230,3 +259,12 @@ resources:
         Name: ${self:provider.environment.UPLOAD_ACCESS_ID}
         Description: Secret and key for upload images
         KmsKeyId: !Ref KMSKey
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
