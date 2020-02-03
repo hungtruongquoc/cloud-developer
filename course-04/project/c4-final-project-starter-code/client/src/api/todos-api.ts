@@ -28,7 +28,6 @@ export async function createTodo(
     }
   })
   console.log(response);
-  debugger;
   return response.data.item
 }
 
