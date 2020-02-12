@@ -31,6 +31,7 @@ provider:
     AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
     AUTH_0_SECRET_FIELD: auth0Secret
     TODOS_TABLE: ToDos-${self:provider.stage}
+    JOBS_TABLE: Jobs-${self:provider.stage}
     AUDIENCE_SECRET_ID: Audience-${self:provider.stage}
     AUDIENCE_FIELD: Audience
     UPLOAD_SECRET_ID: UploadSecret-${self:provider.stage}
@@ -104,11 +105,28 @@ functions:
           cors: true
           authorizer: Auth
 
+  GetJobs:
+    handler: src/lambda/http/getJobs.handler
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Scan
+          - dynamodb:Query
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBS_TABLE}
+    events:
+      - http:
+          method: get
+          path: jobs
+          cors: true
+          authorizer: Auth
+
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     iamRoleStatementsInherit: true
     iamRoleStatements:
-      - Effect: "Allow"ß
+      - Effect: "Allow"
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
@@ -193,6 +211,22 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
+
+    JobsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: jobId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: jobId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.JOBS_TABLE}
 
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
