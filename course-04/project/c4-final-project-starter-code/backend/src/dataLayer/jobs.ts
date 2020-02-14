@@ -41,4 +41,9 @@ export class Jobs {
 
 		return await this.docClient.query(scanParams).promise()
 	}
+
+	async createJob(item): Promise<any> {
+		await this.docClient.put({TableName: this.jobTable, Item: item}).promise()
+		return item
+	}
 }

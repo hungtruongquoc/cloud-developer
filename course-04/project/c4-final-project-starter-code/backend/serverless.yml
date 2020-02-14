@@ -143,6 +143,24 @@ functions:
             requestModels:
               'application/json': CreateToDoRequest
 
+  CreateJob:
+    handler: src/lambda/http/createJob.handler
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBS_TABLE}
+    events:
+      - http:
+          method: post
+          path: jobs
+          cors: true
+          authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(models/create-job-request.json)}
+
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     iamRoleStatementsInherit: true

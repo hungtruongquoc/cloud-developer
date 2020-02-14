@@ -1,5 +1,6 @@
 import {createLogger} from "../utils/logger";
 import {Jobs} from "../dataLayer/jobs";
+import * as uuid from 'uuid'
 
 const logger = createLogger('job-get')
 const dbJobs = new Jobs()
@@ -26,4 +27,17 @@ export async function getAllJobs(user: string, next, limit): Promise<Object> {
 		items: result.Items,
 		nextKey: encodeNextKey(result.LastEvaluatedKey)
 	}
+}
+
+export async function createJob(
+		createJobRequest: any,
+		user: string
+): Promise<any> {
+	logger.info('In business logic of create a job: ', {createJobRequest, user})
+	//@ts-ignore
+	const item: any = {...createJobRequest, attachmentUrl: ' '};
+	item.jobId = uuid.v4();
+	item.userId = user;
+	item.createdAt = (new Date()).toUTCString();
+	return await dbJobs.createJob(item);
 }
