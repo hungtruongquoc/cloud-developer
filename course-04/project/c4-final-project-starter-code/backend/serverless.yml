@@ -194,6 +194,21 @@ functions:
           cors: true
           authorizer: Auth
 
+  DeleteJob:
+    handler: src/lambda/http/deleteJob.handler
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBS_TABLE}
+    events:
+      - http:
+          method: delete
+          path: jobs/{jobId}
+          cors: true
+          authorizer: Auth
+
   # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler

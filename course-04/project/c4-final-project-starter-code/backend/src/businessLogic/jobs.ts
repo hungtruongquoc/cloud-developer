@@ -41,3 +41,7 @@ export async function createJob(
 	item.createdAt = (new Date()).toUTCString();
 	return await dbJobs.createJob(item);
 }
+
+export async function deleteJob(user, jobId: string): Promise<string> {
+	return await dbJobs.deleteJob(user, jobId);
+}

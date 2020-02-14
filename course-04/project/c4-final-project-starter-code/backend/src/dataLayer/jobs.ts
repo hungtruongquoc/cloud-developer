@@ -46,4 +46,9 @@ export class Jobs {
 		await this.docClient.put({TableName: this.jobTable, Item: item}).promise()
 		return item
 	}
+
+	async  deleteJob(user, jobId: string): Promise<string> {
+		await this.docClient.delete({TableName: this.jobTable, Key: {userId: user, jobId}}).promise()
+		return jobId;
+	}
 }

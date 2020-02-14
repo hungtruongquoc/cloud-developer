@@ -24,7 +24,7 @@ import Auth from '../auth/Auth'
 import {Fragment, SyntheticEvent} from "react";
 import {JobDeleteModal} from "./JobDeleteModal";
 import {JobDetail} from "./JobDetail";
-import {getJobs, createJob} from "../api/jobs-api";
+import {getJobs, createJob, deleteJob} from "../api/jobs-api";
 
 interface JobProps {
   auth: Auth
@@ -53,12 +53,16 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
   }
 
   deleteJob = (job: any) => {
-    return (event: SyntheticEvent, buttonData: any) => {
-      this.setState((prevState, props) => {
-        const {jobs: oldJobs} = prevState;
-        const jobs = oldJobs.filter(item => item.name != job.name);
-        return {jobs}
-      });
+    return async (event: SyntheticEvent, buttonData: any): Promise<Boolean> => {
+      try {
+        await deleteJob(this.props.auth.getIdToken(), job.jobId);
+        this.loadJobs();
+        return true;
+      }
+      catch(e) {
+        console.error('Failed to delete job: ', e);
+        return false;
+      }
     }
   }
 
@@ -111,8 +115,8 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
           </Grid.Column>
         </Grid.Row>
         {
-          Array.isArray(jobs) && jobs.length > 0 ? jobs.map(({name, description, createdAt}: any, index) => (
-            <Grid.Row key={name}>
+          Array.isArray(jobs) && jobs.length > 0 ? jobs.map(({name, description, createdAt, jobId}: any, index) => (
+            <Grid.Row key={jobId}>
               <Grid.Column width={4}>
                 <strong>{name}</strong>
               </Grid.Column>
@@ -130,7 +134,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
                   <Icon name='attach'/>
                 </Button>
                 <JobDeleteModal auth={auth} history={history}
-                                onDeleteClick={this.deleteJob({name, description, createdAt})} name={name}/>
+                                onDeleteClick={this.deleteJob({jobId, name, description, createdAt})} name={name}/>
               </Grid.Column>
             </Grid.Row>
           )) : <Grid.Column width={16}>
