@@ -27,8 +27,18 @@ export class JobDeleteModal extends React.PureComponent<ModalProps, ModalState> 
     this.setState({showDeleteDialog: false})
   }
 
+  onDeleteClicked = () => {
+    const {onDeleteClick} = this.props;
+    const result = onDeleteClick();
+    this.setState({showDeleteDialog: false}, () => {
+      if (!result) {
+        alert('Failed to delete selected job. Try again.')
+      }
+    });
+  }
+
   render = () => {
-    const {onDeleteClick, name} = this.props;
+    const {name} = this.props;
     const {showDeleteDialog} = this.state;
 
     return (<Modal trigger={<Button icon color="red" onClick={this.showDeleteDialog}>
@@ -42,7 +52,7 @@ export class JobDeleteModal extends React.PureComponent<ModalProps, ModalState> 
         <Button color='green' onClick={this.closeDeleteDialog}>
           <Icon name='remove'/> No
         </Button>
-        <Button color='red' onClick={onDeleteClick}>
+        <Button color='red' onClick={this.onDeleteClicked}>
           <Icon name='trash alternate'/> Yes
         </Button>
       </Modal.Actions>

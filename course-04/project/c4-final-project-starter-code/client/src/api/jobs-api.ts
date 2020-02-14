@@ -28,3 +28,15 @@ export async function createJob(
   console.log('Job created', response);
   return response.data.item
 }
+
+export async function deleteJob(
+  idToken: string,
+  jobId: string
+): Promise<void> {
+  await Axios.delete(`${apiEndpoint}/jobs/${jobId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+}
