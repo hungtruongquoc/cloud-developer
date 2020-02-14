@@ -24,7 +24,7 @@ import Auth from '../auth/Auth'
 import {Fragment, SyntheticEvent} from "react";
 import {JobDeleteModal} from "./JobDeleteModal";
 import {JobDetail} from "./JobDetail";
-import {getJobs} from "../api/jobs-api";
+import {getJobs, createJob} from "../api/jobs-api";
 
 interface JobProps {
   auth: Auth
@@ -62,13 +62,17 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     }
   }
 
-  addNewJob = (name: string, description: string) => {
-    this.setState((prevState, props) => {
-      const {jobs: oldList} = prevState;
-      return {
-        jobs: [...oldList, {name, description, createdAt: new Date()}]
+  addNewJob = async (name: string, description: string) => {
+    const newJob = {name, description, createdAt: new Date()};
+    try {
+      const result = await createJob(this.props.auth.getIdToken(), newJob)
+      if (result) {
+        this.loadJobs();
       }
-    })
+    }
+    catch(e) {
+      console.error('Failed to create new job: ', e);
+    }
   }
 
   componentDidMount() {
@@ -91,7 +95,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     const {jobs} = this.state;
     const {auth, history} = this.props;
     return (
-      <React.Fragment>
+      <Fragment>
         <Grid.Row style={{borderBottom: '1px solid black'}}>
           <Grid.Column width={4}>
             <h5>Name</h5>
@@ -135,7 +139,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
             </h5>
           </Grid.Column>
         }
-      </React.Fragment>
+      </Fragment>
     )
       ;
   }
