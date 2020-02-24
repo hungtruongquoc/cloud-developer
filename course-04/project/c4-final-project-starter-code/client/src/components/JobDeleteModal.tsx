@@ -1,7 +1,7 @@
 import * as React from "react";
 import Auth from "../auth/Auth";
 import {History} from "history";
-import {Button, Icon, Modal, Loader} from "semantic-ui-react";
+import {Button, Icon, Modal} from "semantic-ui-react";
 
 interface ModalProps {
   auth: Auth

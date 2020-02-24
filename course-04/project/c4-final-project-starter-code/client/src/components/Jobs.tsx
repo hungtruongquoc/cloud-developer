@@ -1,8 +1,6 @@
 import {History} from 'history'
 import * as React from 'react'
-
 import {
-  Button,
   Divider,
   Grid,
   Header,
@@ -15,6 +13,7 @@ import {Fragment, SyntheticEvent} from "react";
 import {JobDeleteModal} from "./JobDeleteModal";
 import {JobDetail} from "./JobDetail";
 import {getJobs, createJob, deleteJob, updateJob} from "../api/jobs-api";
+import {JobAttachment} from "./JobAttachment";
 
 interface JobProps {
   auth: Auth
@@ -40,10 +39,14 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     showDeleteDialog: false
   }
 
+  get authToken() {
+    return this.props.auth.getIdToken();
+  }
+
   deleteJob = (job: any) => {
     return async (event: SyntheticEvent, buttonData: any): Promise<Boolean> => {
       try {
-        await deleteJob(this.props.auth.getIdToken(), job.jobId);
+        await deleteJob(this.authToken, job.jobId);
         this.loadJobs();
         return true;
       } catch (e) {
@@ -56,7 +59,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
   addNewJob = async (name: string, description: string) => {
     const newJob = {name, description, createdAt: new Date()};
     try {
-      const result = await createJob(this.props.auth.getIdToken(), newJob)
+      const result = await createJob(this.authToken, newJob)
       if (result) {
         this.loadJobs();
       }
@@ -67,12 +70,11 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
 
   updateJob = async (id: string, description: string, name: string) => {
     try {
-      const result = await updateJob(this.props.auth.getIdToken(), {id, description, name});
+      const result = await updateJob(this.authToken, {id, description, name});
       if (result) {
         this.loadJobs();
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.error(`Failed to update the job ${name}`, e)
     }
   }
@@ -81,10 +83,10 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     this.setState({loadingJobs: true}, this.loadJobs);
   }
 
-  loadJobs() {
+  loadJobs = () => {
     this.setState({loadingJobs: true}, async () => {
       try {
-        const jobs = await getJobs(this.props.auth.getIdToken())
+        const jobs = await getJobs(this.authToken)
         this.setState({
           jobs,
           loadingJobs: false
@@ -101,11 +103,11 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     return (
       <Fragment>
         <Grid.Row style={{borderBottom: '1px solid black'}}>
-          <Grid.Column width={4}>
-            <h5>Name</h5>
+          <Grid.Column width={7}>
+            <h5>Name - Description</h5>
           </Grid.Column>
-          <Grid.Column width={5}>
-            <h5>Description</h5>
+          <Grid.Column width={2}>
+            <h5 style={{textAlign: 'center'}}>Attachment</h5>
           </Grid.Column>
           <Grid.Column width={4}>
             <h5 style={{textAlign: 'center'}}>Created At</h5>
@@ -115,13 +117,18 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
           </Grid.Column>
         </Grid.Row>
         {
-          Array.isArray(jobs) && jobs.length > 0 ? jobs.map(({name, description, createdAt, jobId}: any, index) => (
+          Array.isArray(jobs) && jobs.length > 0 ? jobs.map(({name, description, createdAt, jobId, attachmentUrl}: any, index) => (
             <Grid.Row key={jobId}>
-              <Grid.Column width={4}>
+              <Grid.Column width={7}>
                 <strong>{name}</strong>
-              </Grid.Column>
-              <Grid.Column width={5}>
                 <p>{description}</p>
+              </Grid.Column>
+              <Grid.Column width={2}>
+                {
+                  attachmentUrl && attachmentUrl != ' '? (<p style={{textAlign: 'center'}}>
+                    <a href={attachmentUrl}><Icon name="attach"/></a>
+                  </p>) : null
+                }
               </Grid.Column>
               <Grid.Column width={4}>
                 <p style={{textAlign: 'center'}}>{createdAt ? createdAt.toLocaleString() : '-'}</p>
@@ -129,9 +136,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
               <Grid.Column width={3}>
                 <JobDetail auth={auth} history={history} initialDesc={description} updateJob={this.updateJob}
                            initialName={name} initialId={jobId}/>
-                <Button icon color='blue'>
-                  <Icon name='attach'/>
-                </Button>
+                <JobAttachment auth={auth} history={history} jobId={jobId} name={name} afterUploadDone={this.loadJobs}/>
                 <JobDeleteModal auth={auth} history={history}
                                 onDeleteClick={this.deleteJob({jobId, name, description, createdAt})} name={name}/>
               </Grid.Column>
