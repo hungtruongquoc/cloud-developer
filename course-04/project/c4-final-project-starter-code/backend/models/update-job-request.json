@@ -8,13 +8,11 @@
     },
     "description": {
       "type": "string"
-    },
-    "createdAt": {
-      "type": "string"
     }
   },
   "required": [
-    "name"
+    "name",
+    "description"
   ],
   "additionalProperties": false
 }

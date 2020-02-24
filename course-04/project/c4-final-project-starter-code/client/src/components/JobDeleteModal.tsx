@@ -1,7 +1,7 @@
 import * as React from "react";
 import Auth from "../auth/Auth";
 import {History} from "history";
-import {Button, Icon, Modal} from "semantic-ui-react";
+import {Button, Icon, Modal, Loader} from "semantic-ui-react";
 
 interface ModalProps {
   auth: Auth
@@ -11,12 +11,14 @@ interface ModalProps {
 }
 
 interface ModalState {
-  showDeleteDialog: boolean
+  showDeleteDialog: boolean,
+  isLoading: boolean
 }
 
 export class JobDeleteModal extends React.PureComponent<ModalProps, ModalState> {
   state: ModalState = {
-    showDeleteDialog: false
+    showDeleteDialog: false,
+    isLoading: false
   }
 
   showDeleteDialog = () => {
@@ -28,18 +30,22 @@ export class JobDeleteModal extends React.PureComponent<ModalProps, ModalState> 
   }
 
   onDeleteClicked = () => {
-    const {onDeleteClick} = this.props;
-    const result = onDeleteClick();
-    this.setState({showDeleteDialog: false}, () => {
-      if (!result) {
-        alert('Failed to delete selected job. Try again.')
-      }
+    this.setState({isLoading: true}, () => {
+      const {onDeleteClick} = this.props;
+      const result = onDeleteClick();
+      setTimeout(() => {
+        this.setState({isLoading: false}, () => {
+          if (!result) {
+            alert('Failed to delete selected job. Try again.')
+          }
+        });
+      }, 1000);
     });
   }
 
   render = () => {
     const {name} = this.props;
-    const {showDeleteDialog} = this.state;
+    const {showDeleteDialog, isLoading} = this.state;
 
     return (<Modal trigger={<Button icon color="red" onClick={this.showDeleteDialog}>
       <Icon name="trash alternate"/>
@@ -49,10 +55,10 @@ export class JobDeleteModal extends React.PureComponent<ModalProps, ModalState> 
         Do you really want to delete "{name}"?
       </Modal.Content>
       <Modal.Actions>
-        <Button color='green' onClick={this.closeDeleteDialog}>
+        <Button color='green' onClick={this.closeDeleteDialog} disabled={isLoading}>
           <Icon name='remove'/> No
         </Button>
-        <Button color='red' onClick={this.onDeleteClicked}>
+        <Button color='red' onClick={this.onDeleteClicked} loading={isLoading}>
           <Icon name='trash alternate'/> Yes
         </Button>
       </Modal.Actions>

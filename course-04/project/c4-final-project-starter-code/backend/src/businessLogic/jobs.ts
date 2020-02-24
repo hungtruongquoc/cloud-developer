@@ -45,3 +45,7 @@ export async function createJob(
 export async function deleteJob(user, jobId: string): Promise<string> {
 	return await dbJobs.deleteJob(user, jobId);
 }
+
+export async function updateJob(user, jobId: string, newData: any) {
+	return await dbJobs.updateJob(user, jobId, newData);
+}

@@ -40,3 +40,13 @@ export async function deleteJob(
     }
   })
 }
+
+export async function updateJob(token: string, {id, name, description}: any): Promise<Boolean> {
+  const result = await Axios.patch(`${apiEndpoint}/jobs/${id}`,  JSON.stringify({name, description}),{
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return 200 == result.status
+}

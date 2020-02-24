@@ -1,30 +1,20 @@
-import dateFormat from 'dateformat'
 import {History} from 'history'
-import update from 'immutability-helper'
 import * as React from 'react'
 
 import {
   Button,
-  Checkbox,
   Divider,
   Grid,
   Header,
   Icon,
-  Input,
-  Image,
   Loader,
-  Dimmer,
-  Modal,
-  List,
-  Form,
-  TextArea, InputOnChangeData, TextAreaProps
 } from 'semantic-ui-react'
 
 import Auth from '../auth/Auth'
 import {Fragment, SyntheticEvent} from "react";
 import {JobDeleteModal} from "./JobDeleteModal";
 import {JobDetail} from "./JobDetail";
-import {getJobs, createJob, deleteJob} from "../api/jobs-api";
+import {getJobs, createJob, deleteJob, updateJob} from "../api/jobs-api";
 
 interface JobProps {
   auth: Auth
@@ -37,8 +27,7 @@ interface JobState {
   showCreateDialog: boolean,
   newJobName: string,
   newJobDesc: string,
-  showDeleteDialog: boolean,
-  isDeleteLoading: boolean
+  showDeleteDialog: boolean
 }
 
 export class Jobs extends React.PureComponent<JobProps, JobState> {
@@ -48,8 +37,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     showCreateDialog: false,
     newJobDesc: '',
     newJobName: '',
-    showDeleteDialog: false,
-    isDeleteLoading: false
+    showDeleteDialog: false
   }
 
   deleteJob = (job: any) => {
@@ -58,8 +46,7 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
         await deleteJob(this.props.auth.getIdToken(), job.jobId);
         this.loadJobs();
         return true;
-      }
-      catch(e) {
+      } catch (e) {
         console.error('Failed to delete job: ', e);
         return false;
       }
@@ -73,9 +60,20 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
       if (result) {
         this.loadJobs();
       }
-    }
-    catch(e) {
+    } catch (e) {
       console.error('Failed to create new job: ', e);
+    }
+  }
+
+  updateJob = async (id: string, description: string, name: string) => {
+    try {
+      const result = await updateJob(this.props.auth.getIdToken(), {id, description, name});
+      if (result) {
+        this.loadJobs();
+      }
+    }
+    catch (e) {
+      console.error(`Failed to update the job ${name}`, e)
     }
   }
 
@@ -83,16 +81,18 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
     this.setState({loadingJobs: true}, this.loadJobs);
   }
 
-  async loadJobs() {
-    try {
-      const jobs = await getJobs(this.props.auth.getIdToken())
-      this.setState({
-        jobs,
-        loadingJobs: false
-      })
-    } catch (e) {
-      alert(`Failed to fetch todos: ${e.message}`)
-    }
+  loadJobs() {
+    this.setState({loadingJobs: true}, async () => {
+      try {
+        const jobs = await getJobs(this.props.auth.getIdToken())
+        this.setState({
+          jobs,
+          loadingJobs: false
+        })
+      } catch (e) {
+        alert(`Failed to fetch todos: ${e.message}`)
+      }
+    })
   }
 
   renderJobList() {
@@ -124,12 +124,11 @@ export class Jobs extends React.PureComponent<JobProps, JobState> {
                 <p>{description}</p>
               </Grid.Column>
               <Grid.Column width={4}>
-                <p style={{textAlign: 'center'}}>{createdAt.toLocaleString()}</p>
+                <p style={{textAlign: 'center'}}>{createdAt ? createdAt.toLocaleString() : '-'}</p>
               </Grid.Column>
               <Grid.Column width={3}>
-                <JobDetail auth={auth} history={history} addNewJob={() => {
-                }} initialDesc={name} initialName={description}
-                           initialId={index.toString()}/>
+                <JobDetail auth={auth} history={history} initialDesc={description} updateJob={this.updateJob}
+                           initialName={name} initialId={jobId}/>
                 <Button icon color='blue'>
                   <Icon name='attach'/>
                 </Button>
