@@ -51,4 +51,29 @@ export class Jobs {
 		await this.docClient.delete({TableName: this.jobTable, Key: {userId: user, jobId}}).promise()
 		return jobId;
 	}
+
+	async updateJob(user: string, jobId: string, newData: any): Promise<Object> {
+		// Builds the expressions for update
+		let updateExpression = 'set #name = :n, description = :d';
+		let attributeValues = {
+			':n': newData.name,
+			':d': newData.description
+		}
+
+		if (newData.attachmentUrl) {
+			updateExpression += ', attachmentUrl = :url'
+			attributeValues[':url'] = newData.attachmentUrl
+		}
+		const updatedItem = await this.docClient.update({
+			TableName: this.jobTable,
+			Key: {userId: user, jobId},
+			UpdateExpression: updateExpression,
+			ExpressionAttributeValues: attributeValues,
+			ExpressionAttributeNames: {
+				'#name': 'name'
+			}
+		}).promise()
+		logger.info('update result: ', {...updatedItem})
+		return {jobId, ...newData}
+	}
 }

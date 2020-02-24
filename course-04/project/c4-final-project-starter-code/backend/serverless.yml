@@ -179,6 +179,24 @@ functions:
             schema:
               application/json: ${file(models/update-to-do-request.json)}
 
+  UpdateJob:
+    handler: src/lambda/http/updateJob.handler
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOBS_TABLE}
+    events:
+      - http:
+          method: patch
+          path: jobs/{jobId}
+          cors: true
+          authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(models/update-job-request.json)}
+
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     iamRoleStatementsInherit: true
