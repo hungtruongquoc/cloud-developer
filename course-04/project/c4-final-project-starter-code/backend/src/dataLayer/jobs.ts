@@ -76,4 +76,21 @@ export class Jobs {
 		logger.info('update result: ', {...updatedItem})
 		return {jobId, ...newData}
 	}
+
+	async updateJobAttachment(user: string, jobId: string, newData): Promise<Object> {
+		// Builds the expressions for update
+		let updateExpression = 'set attachmentUrl = :u';
+		let attributeValues = {
+			':u': newData.attachmentUrl
+		}
+
+		const updatedItem = await this.docClient.update({
+			TableName: this.jobTable,
+			Key: {userId: user, jobId},
+			UpdateExpression: updateExpression,
+			ExpressionAttributeValues: attributeValues
+		}).promise()
+		logger.info('update result: ', {...updatedItem})
+		return {jobId, ...newData}
+	}
 }

@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {Link, Route, Router, Switch} from 'react-router-dom'
 import {Grid, Menu, MenuItemProps, Segment} from 'semantic-ui-react'
-
 import Auth from './auth/Auth'
 import {EditTodo} from './components/EditTodo'
 import {LogIn} from './components/LogIn'
@@ -27,8 +26,9 @@ export default class App extends Component<AppProps, AppState> {
 
     this.handleLogin = this.handleLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
+
     this.state = {
-      activeItem: 'home'
+      activeItem: 'jobs'
     };
   }
 
@@ -47,20 +47,18 @@ export default class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <div>
-        <Segment style={{padding: '8em 0em'}} vertical>
-          <Grid container stackable verticalAlign="middle">
-            <Grid.Row>
-              <Grid.Column width={16}>
-                <Router history={this.props.history}>
-                  {this.generateMenu()}
-                  {this.generateCurrentPage()}
-                </Router>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Segment>
-      </div>
+      <Segment style={{padding: '8em 0em'}} vertical>
+        <Grid container stackable verticalAlign="middle">
+          <Grid.Row>
+            <Grid.Column width={16}>
+              <Router history={this.props.history}>
+                {this.generateMenu()}
+                {this.generateCurrentPage()}
+              </Router>
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      </Segment>
     )
   }
 

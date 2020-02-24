@@ -49,3 +49,7 @@ export async function deleteJob(user, jobId: string): Promise<string> {
 export async function updateJob(user, jobId: string, newData: any) {
 	return await dbJobs.updateJob(user, jobId, newData);
 }
+
+export async function updateJobAttachment(user, jobId: string, newData: any) {
+	return await dbJobs.updateJobAttachment(user, jobId, newData);
+}
