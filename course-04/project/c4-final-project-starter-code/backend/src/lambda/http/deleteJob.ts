@@ -10,12 +10,12 @@ const logger = createLogger('job-delete')
 export const handler: APIGatewayProxyHandler = middy(async (
 		event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-	const todoId = event.pathParameters.jobId
+	const jobId = event.pathParameters.jobId
 	const authorization = event.headers.Authorization
 	const split = authorization.split(' ')
 	const jwtToken = split[1]
 	const user = getUserId(jwtToken)
-	const deleteId = await deleteJob(user, todoId)
+	const deleteId = await deleteJob(user, jobId)
 	logger.info('Deleted job: ', {deleteId})
 	return {
 		statusCode: 200,
