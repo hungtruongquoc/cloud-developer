@@ -1,3 +1,45 @@
+Student name: Hung Truong
+
+# Capstone Project Instruction
+
+## Client
+
+The client is a React App. The app can be run from the `client` folder using `npm run start`
+
+## New Functionality
+
+New functionality of a simplified job listing system was added to the existing application. Once a user is logged in,
+the user can see `Jobs` menu item. By clicking the `Jobs` menu item, the user can access a list of jobs.
+The job list allows users to add post new job, edit job posting conent (`name`, `description`).
+The UI also provide buttons for uploading attachment to the job and deleting a job post.
+Currently, the client only supports PDF file uploads
+
+## Backend
+
+### New DynamoDB Table
+New table for job posting: Jobs
+
+### New SNS Topic
+A new `jobUrlTopic-dev` SNS topic publishes messages to the `addJobAttachUrl` lambda for informing clients.
+
+### New Lambda Functions
+The back-end was added new lambda functions for job posting functionality:
+- http/createJob: adding a new job post to the `Jobs` DynamoDB table
+- http/deleteJob: removing a job post.
+- http/getJobAttachUrl: generate a URL for uploading a file. This lambda only generates the URL.
+- http/getJobs: retrieving a list of job posts.
+- http/updateJob: updating content of a job post.
+- http/updateJobAttachment: updating the URL to the uploaded file once the file is created in S3.
+- s3/addJobAttachUrl: subscribing to the `s3:ObjectCreated:Put` event of S3 to inform all clients the creation of a file in S3.
+
+### The Uploading Process
+The uploading process includes following steps:
+1. A client gets a presigned URL from the back-end.
+2. The client upload the file using the retrieved URL.
+3. Once the file is created, the back-end uses websocket to inform all clients about the file creation.to
+4. All clients retrieve a message and check the payload to update the url of the uploaded file for the corresponding job
+post
+
 # Serverless TODO
 
 To implement this project, you need to implement a simple TODO application using AWS Lambda and Serverless framework. Search for all comments starting with the `TODO:` in the code to find the placeholders that you need to implement.
