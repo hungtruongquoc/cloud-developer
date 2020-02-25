@@ -150,7 +150,11 @@ export class JobAttachment extends React.PureComponent<JobAttachmentProps, JobAt
     const isLoading = uploadState != UploadState.NoUpload && uploadState != UploadState.UploadSuccess;
     return (
       <Fragment>
-        <Button loading={isLoading} type="submit" color="blue"
+        <Button type="submit" color="blue" onClick={this.closeDialog}
+                labelPosition='left' icon>
+          <Icon name="times"/> Cancel
+        </Button>
+        <Button loading={isLoading} type="submit" color="orange"
                 labelPosition='left' icon>
           <Icon name="upload"/> Upload
         </Button>
